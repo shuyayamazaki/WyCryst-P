@@ -1,3 +1,3 @@
-# Property-directe generative design of inorganic materials 
+# Property-directed Generative Design of Inorganic Materials 
 
  
