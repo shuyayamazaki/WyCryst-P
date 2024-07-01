@@ -35,7 +35,7 @@ def main():
     df = df[df['band_gap'] > 0]
 
     # Set your generation target (reference materials)  
-    # (ex) Target: Ef < -0.5 & Eg ~= 1.5
+    # (e.g.) Target: Ef < -0.5 & Eg ~= 1.5
     df_target_pro = df[df['formation_energy_per_atom'] < -0.5]
     df_target_pro = df[(df['band_gap'] > 1.45) & (df['band_gap'] < 1.55)]
     df_target_pro.rename(columns={'spacegroup.crystal_system':'spacegroup_crystal_system'
