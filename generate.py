@@ -1,5 +1,5 @@
 """
-Main model validation for WyCryst+ Framework
+Generator for WyCryst+ Framework
 """
 
 from data import *
@@ -28,13 +28,13 @@ module_dir = 'PATH_TO_DATA'
 module_dir2 = 'PATH_TO_TEMP_FILES'
 
 def main():
-    
+
     print('---------Building Input Data---------------')
     wyckoff_multiplicity_array, wyckoff_DoF_array = wyckoff_para_loader()
     df = get_input_df()
     df = df[df['band_gap'] > 0]
 
-    # Set generation target (reference points)  
+    # Set your generation target (reference materials)  
     # (ex) Target: Ef < -0.5 & Eg ~= 1.5
     df_target_pro = df[df['formation_energy_per_atom'] < -0.5]
     df_target_pro = df[(df['band_gap'] > 1.45) & (df['band_gap'] < 1.55)]
