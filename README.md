@@ -20,7 +20,7 @@ Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/Ra
 ## Usage 
 Please provide `PATH_TO_DATA` and `PATH_TO_TEMP_FILES` in `tain.py` and `generate.py`
 
-You need to run `tain.py` before you perform `generate.py`
+You need to run `train.py` before you perform `generate.py`
 
 ## Training the MPVAE model
 To train the MPVAE model, run:
