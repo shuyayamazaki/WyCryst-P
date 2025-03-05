@@ -1,4 +1,4 @@
-# Property-directed Generative Design of Inorganic Materials 
+# Multi-property directed Generative Design of Inorganic Materials 
 Multi-property-directed WyCryst framework with Wyckoff data augmentation and transfer learnig 
 
 
