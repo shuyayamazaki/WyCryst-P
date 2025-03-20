@@ -8,6 +8,8 @@ from tqdm import tqdm
 import pandas as pd
 from os.path import join
 
+module_dir = './data/' #PATH_TO_DATA
+module_dir2 = './temp_files/' # PATH_TO_TEMP_FILES
 
 def wyckoff_augment(df):
     

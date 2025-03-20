@@ -17,6 +17,8 @@ import joblib
 import re
 import json
 
+module_dir = './data/' #PATH_TO_DATA
+module_dir2 = './temp_files/' # PATH_TO_TEMP_FILES
 
 #pad the  data along the second dimension
 def pad (vae_x , p):
@@ -91,7 +93,7 @@ def get_reconstructed_SC(df_sample):
     # load CV_SC models
     models=[]
     for index in range(5):
-        models.append(tf.keras.models.load_model(join(module_dir2,'/forward_models/SC_final/cv_{}'.format(index+1))))
+        models.append(tf.keras.models.load_model(join(module_dir2,'forward_models/SC_final/cv_{}'.format(index+1))))
 
     # get crystal features and calculate CV_SC
     test_Crystal,test_sg = recon_wyckoff_represent(df_sample.reset_index(),3,20)
@@ -110,7 +112,7 @@ def get_reconstructed_MC(df_sample):
     # load CV_MC models (metal score)
     models=[] 
     for index in range(5):
-        models.append(tf.keras.models.load_model(join(module_dir2,'/forward_models/metal_final/cv_{}'.format(index+1))))
+        models.append(tf.keras.models.load_model(join(module_dir2,'forward_models/metal_final/cv_{}'.format(index+1))))
 
     # get crystal features and calculate CV_MC
     test_Crystal,test_sg = recon_wyckoff_represent(df_sample.reset_index(),3,20)
@@ -297,7 +299,7 @@ def train_test_split_bysg(df, train_ratio=0.8):
     group_counts = df['spacegroup_number'].value_counts()
     train_size = int(train_ratio * len(df))
     
-    group_ratios = group_counts / len(df_clean)
+    group_ratios = group_counts / len(df)
     train_group_sizes = (group_ratios * train_size).astype(int)
     test_group_sizes = group_counts - train_group_sizes
 

@@ -13,15 +13,16 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+import os
+from os.path import abspath, dirname, join
 import joblib
 import warnings
 from tensorflow.python.framework.ops import disable_eager_execution
 
-disable_eager_execution()
 warnings.filterwarnings("ignore")
 
-module_dir = 'PATH_TO_DATA'
-module_dir2 = 'PATH_TO_TEMP_FILES'
+module_dir = './data/' #PATH_TO_DATA
+module_dir2 = './temp_files/' # PATH_TO_TEMP_FILES
 
 def main():
 
@@ -53,8 +54,8 @@ def main():
 
     X_train = X_train.astype('float32')
     X_test = X_test.astype('float32')
-    X2_train = X2_train.astype('float32')
-    X2_test = X2_test.astype('float32')
+    X2_train = X2_train.astype('float32').squeeze(-1)
+    X2_test = X2_test.astype('float32').squeeze(-1)
     y_train = y_train.astype('float32')
     y_test = y_test.astype('float32')
     
@@ -81,6 +82,12 @@ def main():
     VAE.add_metric(vae_loss, name='total_loss', aggregation='mean')
     VAE.compile(optimizer=RMSprop(learning_rate=2e-4))
 
+    def set_random_seed(seed):
+        np.random.seed(seed)
+        tf.random.set_seed(seed)
+           
+    set_random_seed(123) 
+
     print('---------Pre-training MPVAE---------------')
     VAE.fit(x=[X_train, X2_train, y_train[:, :sup_dim]], shuffle=True,
             batch_size=512, epochs=55, callbacks=[reduce_lr],
@@ -88,8 +95,8 @@ def main():
 
     # Save the pre-trained model
     print('---------Saving Pre-trained Model---------------')
-    print('trained model weights saved to temp_files/temp_model')
-    VAE.save_weights(join(module_dir2, '/vae_models/PreTrained_VAE_weights.h5'))
+    print('trained model weights saved to temp_files/vae_models')
+    VAE.save_weights(join(module_dir2, 'vae_models/PreTrained_VAE_weights.h5'))
 
     # Transfer learning
     print('---------Starting Transfer Learning---------------')
@@ -118,8 +125,8 @@ def main():
 
     X_train2 = X_train2.astype('float32')
     X_test2 = X_test2.astype('float32')
-    X2_train2 = X2_train2.astype('float32')
-    X2_test2 = X2_test2.astype('float32')
+    X2_train2 = X2_train2.astype('float32').squeeze(-1)
+    X2_test2 = X2_test2.astype('float32').squeeze(-1)
     y_train2 = y_train2.astype('float32')
     y_test2 = y_test2.astype('float32')
 
@@ -142,7 +149,7 @@ def main():
     VAE.add_metric(vae_loss, name='total_loss', aggregation='mean')
 
     # Load pre-trained weights to the new model structure
-    VAE.load_weights(join(module_dir2, '/vae_models/PreTrained_VAE_weights.h5'), by_name=True, skip_mismatch=False)
+    VAE.load_weights(join(module_dir2, 'vae_models/PreTrained_VAE_weights.h5'), by_name=True, skip_mismatch=False)
 
     # Function to set BatchNormalization layers to inference mode
     def set_batchnorm_inference_mode(model):
@@ -236,13 +243,13 @@ def main():
 
     # Save model
     print('---------Saving Final Model---------------')
-    print('trained model weights saved to temp_files/temp_model')
-    VAE.save_weights(join(module_dir2, '/vae_models/TL_VAE_weights.h5'))
-    encoder.save_weights(join(module_dir2, '/vae_models/TL_encoder.h5'))
-    decoder.save_weights(join(module_dir2, '/vae_models/TL_decoder.h5'))
-    regression.save_weights(join(module_dir2, '/vae_models/TL_regression.h5'))
-    joblib.dump(scaler_y1, os.path.join(module_dir2, "/vae_models/tl_scaler_y1.joblib"))
-    joblib.dump(scaler_y2, os.path.join(module_dir2, "/vae_models/tl_scaler_y2.joblib"))
+    print('trained model weights saved to temp_files/vae_models/temp_model')
+    VAE.save_weights(join(module_dir2, 'vae_models/temp_model/TL_VAE_weights.h5'))
+    encoder.save_weights(join(module_dir2, 'vae_models/temp_model/TL_encoder.h5'))
+    decoder.save_weights(join(module_dir2, 'vae_models/temp_model/TL_decoder.h5'))
+    regression.save_weights(join(module_dir2, 'vae_models/temp_model/TL_regression.h5'))
+    joblib.dump(scaler_y1, os.path.join(module_dir2, "vae_models/temp_model/tl_scaler_y1.joblib"))
+    joblib.dump(scaler_y2, os.path.join(module_dir2, "vae_models/temp_model/tl_scaler_y2.joblib"))
 
     print('---------End---------------')
 

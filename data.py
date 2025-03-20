@@ -7,6 +7,8 @@ import re
 from os.path import abspath, dirname, join
 import json
 
+module_dir = './data/' #PATH_TO_DATA
+module_dir2 = './temp_files/' # PATH_TO_TEMP_FILES
 
 def wyckoff_para_loader():
 
@@ -39,7 +41,7 @@ def wyckoff_para_loader():
 
     
 def get_input_df():
-    df_all = pd.read_pickle(join(module_dir,'/df_allternary_newdata.pkl'))
+    df_all = pd.read_pickle(join(module_dir,'df_allternary_newdata.pkl'))
     df = df_all[df_all['nsites'] <= 20]
     df_clean = df[['formation_energy_per_atom', 'band_gap', 'e_above_hull', 'pretty_formula', 'spacegroup.crystal_system',
                    'spacegroup.number', 'wyckoff_dic', 'is_stable', 'cif']]

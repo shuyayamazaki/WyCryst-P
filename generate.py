@@ -14,6 +14,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import joblib
 import re
+import os
 from os.path import abspath, dirname, join
 from tqdm import tqdm
 import itertools
@@ -24,18 +25,18 @@ from tensorflow.python.framework.ops import disable_eager_execution
 disable_eager_execution()
 warnings.filterwarnings("ignore")
 
-module_dir = 'PATH_TO_DATA' #PATH_TO_DATA
-module_dir2 = './temp_files' # PATH_TO_TEMP_FILES
+module_dir = './data/' #PATH_TO_DATA
+module_dir2 = './temp_files/' # PATH_TO_TEMP_FILES
 
 def main():
 
     print('---------Building Input Data---------------')
     wyckoff_multiplicity_array, wyckoff_DoF_array = wyckoff_para_loader()
-    df_all = pd.read_pickle(join(module_dir,'/df_allternary_newdata.pkl'))
+    df_all = pd.read_pickle(join(module_dir,'df_allternary_newdata.pkl'))
     df_all.rename(columns={'spacegroup.crystal_system':'spacegroup_crystal_system'
                                         ,'spacegroup.number':'spacegroup_number'}, inplace=True)
     df = df_all[df_all['nsites'] <= 40]
-    df = df[df['energy_above_hull'] < 0.1]
+    df = df[df['e_above_hull'] < 0.1]
     df = df[df['formation_energy_per_atom'] <= 1]
     df = df[df['band_gap'] > 0]
 
@@ -79,12 +80,12 @@ def main():
     VAE.add_metric(loss_formula, name='wyckoff_formula_loss', aggregation='mean')
     VAE.add_metric(vae_loss, name='total_loss', aggregation='mean')
 
-    encoder.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_encoder2.h5'))
-    decoder.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_decoder2.h5'))
-    regression.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_regression2.h5'))
+    encoder.load_weights(os.path.join(module_dir2,'vae_models/temp_model/TL_encoder2.h5'))
+    decoder.load_weights(os.path.join(module_dir2,'vae_models/temp_model/TL_decoder2.h5'))
+    regression.load_weights(os.path.join(module_dir2,'vae_models/temp_model/TL_regression2.h5'))
 
-    scaler_y1 = joblib.load(os.path.join(module_dir2,"/vae_models/temp_model/tl_scaler_y1_b2.joblib"))
-    scaler_y2 = joblib.load(os.path.join(module_dir2,"/vae_models/temp_model/tl_scaler_y2_b2.joblib"))
+    scaler_y1 = joblib.load(os.path.join(module_dir2,"vae_models/temp_model/tl_scaler_y1_b2.joblib"))
+    scaler_y2 = joblib.load(os.path.join(module_dir2,"vae_models/temp_model/tl_scaler_y2_b2.joblib"))
 
     # sampling from latent space
     print('---------Sampling Result---------------')
