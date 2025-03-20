@@ -13,6 +13,7 @@ Follow the steps below to install all required packages:
  ```
 conda install -r requirement.txt
  ```
+Typical installation time: 10-15 minutes
 
 ## Data 
 Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/RaymondZhurm/WyCryst) `Data release` (or use your own preprocessed data) and place it into the `data` directory
