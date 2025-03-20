@@ -18,18 +18,21 @@ conda install -r requirement.txt
 Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/RaymondZhurm/WyCryst) `Data release` (or use your own preprocessed data) and place it into the `data` directory
 
 ## Usage 
-Please provide `PATH_TO_DATA` and `PATH_TO_TEMP_FILES` in `tain.py` and `generate.py`
+Before running the scripts, please specify the following paths in both `train.py` and `generate.py`:
 
-You need to run `train.py` before you perform `generate.py`
+`PATH_TO_DATA`: Path to your dataset directory.
+`PATH_TO_TEMP_FILES`: Path where trained weights and temporary files will be stored.
 
 ## Training the MPVAE model
-To train the MPVAE model, run:
+To train the MPVAE model on your own dataset, run:
  ```
 python train.py
  ```
 
 ## Property-directed generation 
-For property-directed generation (e.g. Ef < -0.5 & Eg ~= 1.5), run:
+To perform property-directed generation using the pre-trained MPVAE, run:
  ```
 python generate.py
  ```
+**Expected Output:**
+The script `generate.py` outputs a CSV file containing sampled Wyckoff genes after applying the filtering criteria. The resulting CSV will be saved in the directory specified by `PATH_TO_TEMP_FILES`.
