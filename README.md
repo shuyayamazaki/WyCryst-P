@@ -20,8 +20,9 @@ Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/Ra
 ## Usage 
 Before running the scripts, please specify the following paths in both `train.py` and `generate.py`:
 
-`PATH_TO_DATA`: Path to your dataset directory.
-`PATH_TO_TEMP_FILES`: Path where trained weights and temporary files will be stored.
+`PATH_TO_DATA`: Path to your dataset directory
+
+`PATH_TO_TEMP_FILES`: Path where trained weights and temporary files will be stored
 
 ## Training the MPVAE model
 To train the MPVAE model on your own dataset, run:
@@ -34,5 +35,5 @@ To perform property-directed generation using the pre-trained MPVAE, run:
  ```
 python generate.py
  ```
-**Expected Output:**
+Expected Output:
 The script `generate.py` outputs a CSV file containing sampled Wyckoff genes after applying the filtering criteria. The resulting CSV will be saved in the directory specified by `PATH_TO_TEMP_FILES`.
