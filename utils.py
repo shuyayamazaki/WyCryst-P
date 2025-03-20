@@ -106,6 +106,25 @@ def get_reconstructed_SC(df_sample):
     return np.mean(np.dstack(cv_prediction),axis=-1)
 
 
+def get_reconstructed_MC(df_sample):
+    # load CV_MC models (metal score)
+    models=[] 
+    for index in range(5):
+        models.append(tf.keras.models.load_model(join(module_dir2,'/forward_models/metal_final/cv_{}'.format(index+1))))
+
+    # get crystal features and calculate CV_MC
+    test_Crystal,test_sg = recon_wyckoff_represent(df_sample.reset_index(),3,20)
+    test_Crystal = np.stack(test_Crystal,axis=0)
+    test_sg = np.stack(test_sg,axis=0)[:,:,0]
+
+    cv_prediction = []
+    for i in models:
+        cv_prediction.append(i.predict([test_Crystal,test_sg]))
+        cv_mean = np.mean(cv_prediction)
+#     print('prediction:',cv_prediction,', mean:',cv_mean)
+    return np.mean(np.dstack(cv_prediction),axis=-1)
+
+
 def get_wyckoff_dic(cif):
     #     crystal = Structure.from_str(cif,fmt="cif")
     crystal = cif

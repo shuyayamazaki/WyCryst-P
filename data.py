@@ -39,7 +39,7 @@ def wyckoff_para_loader():
 
     
 def get_input_df():
-    df_all = pd.read_pickle(join(module_dir,'df_allternary_newdata.pkl'))
+    df_all = pd.read_pickle(join(module_dir,'/df_allternary_newdata.pkl'))
     df = df_all[df_all['nsites'] <= 20]
     df_clean = df[['formation_energy_per_atom', 'band_gap', 'e_above_hull', 'pretty_formula', 'spacegroup.crystal_system',
                    'spacegroup.number', 'wyckoff_dic', 'is_stable', 'cif']]

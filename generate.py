@@ -24,22 +24,24 @@ from tensorflow.python.framework.ops import disable_eager_execution
 disable_eager_execution()
 warnings.filterwarnings("ignore")
 
-module_dir = 'PATH_TO_DATA'
-module_dir2 = 'PATH_TO_TEMP_FILES'
+module_dir = 'PATH_TO_DATA' #PATH_TO_DATA
+module_dir2 = './temp_files' # PATH_TO_TEMP_FILES
 
 def main():
 
     print('---------Building Input Data---------------')
     wyckoff_multiplicity_array, wyckoff_DoF_array = wyckoff_para_loader()
-    df = get_input_df()
+    df_all = pd.read_pickle(join(module_dir,'/df_allternary_newdata.pkl'))
+    df_all.rename(columns={'spacegroup.crystal_system':'spacegroup_crystal_system'
+                                        ,'spacegroup.number':'spacegroup_number'}, inplace=True)
+    df = df_all[df_all['nsites'] <= 40]
+    df = df[df['energy_above_hull'] < 0.1]
+    df = df[df['formation_energy_per_atom'] <= 1]
     df = df[df['band_gap'] > 0]
 
     # Set your generation target (reference materials)  
-    # (e.g.) Target: Ef < -0.5 & Eg ~= 1.5
-    df_target_pro = df[df['formation_energy_per_atom'] < -0.5]
-    df_target_pro = df[(df['band_gap'] > 1.45) & (df['band_gap'] < 1.55)]
-    df_target_pro.rename(columns={'spacegroup.crystal_system':'spacegroup_crystal_system'
-                                        ,'spacegroup.number':'spacegroup_number'}, inplace=True)
+    # (e.g.) Target: Ef < -0.5 & Eg > 0.5 & Eg < 2.0 & SG >= 143
+    df_target_pro = df[(df['band_gap']>0.5) & (df['band_gap']<2.0) & (df['formation_energy_per_atom']< -0.5) & (df['spacegroup_number']>= 143)]
     df_target_pro = df_target_pro.reset_index()
 
     st = time.time()
@@ -77,12 +79,12 @@ def main():
     VAE.add_metric(loss_formula, name='wyckoff_formula_loss', aggregation='mean')
     VAE.add_metric(vae_loss, name='total_loss', aggregation='mean')
 
-    encoder.load_weights(os.path.join(module_dir2,'vae_models/TL_encoder.h5'))
-    decoder.load_weights(os.path.join(module_dir2,'vae_models/TL_decoder.h5'))
-    regression.load_weights(os.path.join(module_dir2,'vae_models/TL_regression.h5'))
+    encoder.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_encoder2.h5'))
+    decoder.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_decoder2.h5'))
+    regression.load_weights(os.path.join(module_dir2,'/vae_models/temp_model/TL_regression2.h5'))
 
-    scaler_y1 = joblib.load(os.path.join(module_dir2,"vae_models/tl_scaler_y1.joblib"))
-    scaler_y2 = joblib.load(os.path.join(module_dir2,"vae_models/tl_scaler_y2.joblib"))
+    scaler_y1 = joblib.load(os.path.join(module_dir2,"/vae_models/temp_model/tl_scaler_y1_b2.joblib"))
+    scaler_y2 = joblib.load(os.path.join(module_dir2,"/vae_models/temp_model/tl_scaler_y2_b2.joblib"))
 
     # sampling from latent space
     print('---------Sampling Result---------------')
@@ -175,15 +177,21 @@ def main():
 
     df_sample['predicted_formation_energy']=get_reconstructed_property(df_sample, regression, scaler_y1)[:,0]
     df_sample['predicted_band_gap']=get_reconstructed_property(df_sample, regression, scaler_y2)[:,1]
-    df_sample['predicted_SC']=get_reconstructed_SC(df_sample)
+    df_sample['predicted_SC']=get_reconstructed_SC(df_sample) # synthesizability score
+    df_sample['predicted_MC']=get_reconstructed_MC(df_sample) # metal score 
     df_sample['reduced_formula'] = [Composition(i).reduced_formula for i in df_sample['reconstructed_formula']]
 
-    # saving novel & charge-neutral sampled wyckoff genes with synthesizability score > 0.5
+    # saving novel & charge-neutral sampled wyckoff genes through several filteration steps
     print('---------Saving Result---------------')
     df_sample1 = df_sample.loc[-df_sample['reduced_formula'].isin(df_all['pretty_formula'].to_list())]
-    df_sample1 = df_sample1[(df_sample1['predicted_SC']>0.5)&(df_sample1['oxid_test']==True)].groupby(by='reduced_formula',group_keys=False).first().sort_values(by=['reconstructed_sg','reconstructed_DoF','predicted_formation_energy'],ascending = [False,True, True])
+    df_sample1 = df_sample1[(df_sample1['predicted_SC']>0.4)&(df_sample1['oxid_test']==True)].groupby(by='reduced_formula',group_keys=False).first().sort_values(by=['reconstructed_sg','reconstructed_DoF','predicted_formation_energy'],ascending = [False,True, True])
+    df_sample1 = df_sample1[df_sample1['predicted_MC']<0.5]
+    # anion list 
+    target_elements = {"O", "S", "Se", "Te", "F", "Cl", "Br", "I"} 
+    df_sample1 = df_sample1[df_sample1.apply(lambda df: True if len(target_elements.intersection(set(df["reconstructed_wyckoff"].keys()))) < 2 else False, axis=1)] 
     file_path = os.path.join(module_dir2, "sampled_wyckoff_genes.csv")
     df_sample1.to_csv(file_path, index=True) 
+    print('Sampled wyckoff genes saved at:', file_path)
     print('---------End---------------')
 
 if __name__ == "__main__":
