@@ -15,7 +15,7 @@ conda install -r requirement.txt
  ```
 
 ## Data 
-Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/RaymondZhurm/WyCryst) `Data release` and put it in the `data` directory
+Please find `df_allternary_newdata.pkl` from the [WyCryst](https://github.com/RaymondZhurm/WyCryst) `Data release` (or use your own preprocessed data) and place it into the `data` directory
 
 ## Usage 
 Please provide `PATH_TO_DATA` and `PATH_TO_TEMP_FILES` in `tain.py` and `generate.py`
